@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:yunlife/articles/articlesPage.dart';
-import 'package:yunlife/clendar/clendarPage.dart';
-import 'package:yunlife/robot/homeRobotPage.dart';
-import 'package:yunlife/club/clubPage.dart';
-import 'package:yunlife/set/setPage.dart';
+import 'package:yunLife/articles/articlesPage.dart';
+import 'package:yunLife/clendar/clendarPage.dart';
+import 'package:yunLife/robot/homeRobotPage.dart';
+import 'package:yunLife/club/clubPage.dart';
+import 'package:yunLife/map/mapPage.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -13,8 +13,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
-  int _selectedIndex = 1;
+  int _selectedIndex = 2;
 
   void _onItemTapped(int index) {
     setState(() {
@@ -33,7 +32,7 @@ class _HomePageState extends State<HomePage> {
       case 3:
         return clubPage();
       case 4:
-        return setPage();
+        return mapPage();
       default:
         return Text('ERROR');
     }
@@ -73,8 +72,8 @@ class _HomePageState extends State<HomePage> {
           label: '校園社團',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.man),
-          label: '設定',
+          icon: Icon(Icons.map),
+          label: '校園地圖',
         ),
       ],
       currentIndex: _selectedIndex,

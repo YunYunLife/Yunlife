@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:yunlife/home.dart';
+import 'package:yunLife/home.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -21,6 +21,7 @@ class LoginPage extends StatelessWidget {
 
   Container login_body(BuildContext context) {
     return Container(
+        child: SingleChildScrollView(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
@@ -59,7 +60,7 @@ class LoginPage extends StatelessWidget {
           )
         ],
       ),
-    );
+    ));
   }
 
   Container _button(String input, bool choose) {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:yunlife/clendar/clendarEvent.dart';
+import 'package:yunLife/clendar/clendarEvent.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
@@ -146,7 +146,8 @@ class _clendarPageState extends State<clendarPage> {
     if (_eventController.text.isNotEmpty && _selectedDay != null) {
       setState(() {
         if (events[_selectedDay!] != null) {
-          events[_selectedDay!]!.add(clendarEvent(_eventController.text, _selectedDay!));
+          events[_selectedDay!]!
+              .add(clendarEvent(_eventController.text, _selectedDay!));
         } else {
           events[_selectedDay!] = [
             clendarEvent(_eventController.text, _selectedDay!)
