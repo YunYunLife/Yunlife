@@ -36,21 +36,22 @@ class _clubPageState extends State<clubPage> {
         final president = item['president'];
         final office = item['office'];
         final meetingTime = item['meeting_time'];
-        final String meetingPlace;
-        if (item['meeting_place'] == null) {
-          meetingPlace = "";
-        } else {
-          meetingPlace = item['meeting_place'].toString();
-        }
+        final meetingPlace = item['meeting_place'] ?? "";
 
-        return Column(
+        return Padding(padding: EdgeInsets.all(8),
+        child:ListTile(
+          tileColor: Color.fromARGB(255, 247, 236, 187),
+          contentPadding: EdgeInsets.all(8),
+          title: Text(name),
+          subtitle: Text("社長："+ president),
+          trailing:Column(crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            SizedBox(
-              height: 20,
-            ),
-            _clubBox(name, president, office, meetingTime, meetingPlace)
-          ],
-        );
+            Text("社團辦公室："+ office),
+            Text("集社時間："+ meetingTime),
+            Text("集社地點："+ meetingPlace),
+          ],) 
+        ),
+      );
       }).toList();
     });
   }
