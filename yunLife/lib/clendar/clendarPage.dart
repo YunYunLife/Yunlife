@@ -36,7 +36,7 @@ class _clendarPageState extends State<clendarPage> {
   }
 
   Future<void> fetchData() async {
-    final response = await http.get(Uri.parse('http://10.0.2.2:5000/clendar'));
+    final response = await http.get(Uri.parse('http://yunlifeserver.glitch.me/clendar'));
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> decoded =
