@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:yunLife/clendar/clendarPage.dart';
 import 'package:yunLife/login/loadPage.dart';
 import 'package:yunLife/map/mapPage.dart';
 
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: mapPage(),
+      home: clendarPage(),
     );
   }
 }
