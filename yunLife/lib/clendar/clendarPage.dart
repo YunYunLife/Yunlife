@@ -65,13 +65,13 @@ class clendarPageState extends State<clendarPage> {
   Future<void> _addEvent(String eventTitle) async {
     if (_selectedDay != null) {
       final response = await http.post(
-        Uri.parse('http://yunlifeserver.glitch.me/userdata_upload'), // 替换为你的 MongoDB API URL
+        Uri.parse('http://yunlifeserver.glitch.me/userdata_upload'), 
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(<String, dynamic>{
-          '學號': 'B11023042', // 根据你的需求修改
-          '日期': '${_selectedDay!.month}/${_selectedDay!.day}', // 日期格式可以根据需要调整
+          '學號': 'B11023042', 
+          '日期': '${_selectedDay!.year}-${_selectedDay!.month}-${_selectedDay!.day}', 
           '事件': eventTitle,
         }),
       );
