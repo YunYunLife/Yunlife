@@ -1,39 +1,7 @@
-// Copyright 2019 Aleksander Woźniak
-// SPDX-License-Identifier: Apache-2.0
-
-import 'dart:collection';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:table_calendar/table_calendar.dart';
-import 'utils.dart';
-
-/// Function to fetch events from the API and update the event map
-Future<void> fetchEventsFromApi() async {
-  final response = await http.get(Uri.parse('http://yunlifeserver.glitch.me/calendar'));
-
-  if (response.statusCode == 200) {
-    final data = jsonDecode(response.body);
-    kEvents.clear();
-
-    for (var event in data['greetings']) {
-      // Parse the date from the "活動日期" field
-      DateTime eventDate = DateTime.parse(
-        '${DateTime.now().year}-${event['活動日期'].split('/')[0]}-${event['活動日期'].split('/')[1]}'
-      );
-
-      // Check if the date already exists in kEvents, if not, create a new list
-      if (kEvents[eventDate] == null) {
-        kEvents[eventDate] = [];
-      }
-
-      // Add the event to the list of events for that date
-      kEvents[eventDate]?.add(Event(event['活動']));
-    }
-  } else {
-    // Handle the error case when the API request fails
-    print('Failed to load events from server');
-  }
-}
+import 'dart:collection';
 
 /// Example event class
 class Event {
@@ -56,6 +24,55 @@ int getHashCode(DateTime key) {
   return key.day * 1000000 + key.month * 10000 + key.year;
 }
 
+/// Function to fetch events from multiple APIs and update the event map
+Future<void> fetchEventsFromMultipleApis() async {
+  // Fetch data from both APIs
+  final userCalendarResponse = await http.get(Uri.parse('http://yunlifeserver.glitch.me/user_calendar'));
+  final calendarResponse = await http.get(Uri.parse('http://yunlifeserver.glitch.me/calendar'));
+
+  kEvents.clear(); // Clear existing events
+
+  // Handle user_calendar response
+  if (userCalendarResponse.statusCode == 200) {
+    final userData = jsonDecode(userCalendarResponse.body);
+    for (var event in userData['greetings']) {
+      if (event['學號'] == "B11023042") {
+        DateTime eventDate = DateTime.parse(event['日期']);
+        if (kEvents[eventDate] == null) {
+          kEvents[eventDate] = [];
+        }
+        kEvents[eventDate]?.add(Event(event['事件']));
+      }
+    }
+  } else {
+    print('Failed to load user calendar events');
+  }
+
+  // Handle calendar response
+  if (calendarResponse.statusCode == 200) {
+    final calendarData = jsonDecode(calendarResponse.body);
+    for (var event in calendarData['greetings']) {
+      DateTime eventDate = DateTime.parse(
+        '${DateTime.now().year}-${event['活動日期'].split('/')[0]}-${event['活動日期'].split('/')[1]}'
+      );
+      if (kEvents[eventDate] == null) {
+        kEvents[eventDate] = [];
+      }
+      kEvents[eventDate]?.add(Event(event['活動']));
+    }
+  } else {
+    print('Failed to load general calendar events');
+  }
+
+  // Debugging: Print the combined events
+  print('Combined Events: $kEvents');
+}
+
+/// Constants to define the range of dates for the calendar
+final kToday = DateTime.now();
+final kFirstDay = DateTime(kToday.year - 3, kToday.month, kToday.day);
+final kLastDay = DateTime(kToday.year + 3, kToday.month, kToday.day);
+
 /// Returns a list of [DateTime] objects from [first] to [last], inclusive
 List<DateTime> daysInRange(DateTime first, DateTime last) {
   final dayCount = last.difference(first).inDays + 1;
@@ -64,8 +81,3 @@ List<DateTime> daysInRange(DateTime first, DateTime last) {
     (index) => DateTime.utc(first.year, first.month, first.day + index),
   );
 }
-
-/// Constants to define the range of dates for the calendar
-final kToday = DateTime.now();
-final kFirstDay = DateTime(kToday.year, kToday.month - 3, kToday.day);
-final kLastDay = DateTime(kToday.year, kToday.month + 3, kToday.day);

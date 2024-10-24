@@ -1,6 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:table_calendar/table_calendar.dart';
 import 'package:yunLife/clendar/utils.dart';
+import 'package:yunLife/setting.dart';
 
 class clendarPage extends StatefulWidget {
   @override
@@ -21,7 +24,7 @@ class clendarPageState extends State<clendarPage> {
     super.initState();
     _selectedDay = _focusedDay;
     _selectedEvents = ValueNotifier([]);
-    fetchEventsFromApi().then((_) {
+    fetchEventsFromMultipleApis().then((_) {
       setState(() {
         _selectedEvents.value = _getEventsForDay(_selectedDay!);
       });
@@ -56,6 +59,33 @@ class clendarPageState extends State<clendarPage> {
       });
 
       _selectedEvents.value = _getEventsForDay(selectedDay);
+    }
+  }
+
+  Future<void> _addEvent(String eventTitle) async {
+    if (_selectedDay != null) {
+      final response = await http.post(
+        Uri.parse('http://yunlifeserver.glitch.me/userdata_upload'), // 替换为你的 MongoDB API URL
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, dynamic>{
+          '學號': 'B11023042', // 根据你的需求修改
+          '日期': '${_selectedDay!.month}/${_selectedDay!.day}', // 日期格式可以根据需要调整
+          '事件': eventTitle,
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        // 成功添加事件
+        setState(() {
+          kEvents[_selectedDay!]!.add(Event(eventTitle));
+          _selectedEvents.value = _getEventsForDay(_selectedDay!);
+        });
+      } else {
+        // 处理添加事件失败
+        print('Failed to add event: ${response.body}');
+      }
     }
   }
 
@@ -104,6 +134,46 @@ class clendarPageState extends State<clendarPage> {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final String? eventTitle = await _showAddEventDialog(context);
+          if (eventTitle != null) {
+            _addEvent(eventTitle);
+          }
+        },
+        child: const Icon(Icons.add),
+      ),
     );
+  }
+
+  Future<String?> _showAddEventDialog(BuildContext context) async {
+    String? eventTitle;
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        TextEditingController titleController = TextEditingController();
+        return AlertDialog(
+          title: const Text('新增事件'),
+          content: TextField(
+            controller: titleController,
+            decoration: const InputDecoration(hintText: '事件名稱'),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                eventTitle = titleController.text;
+                Navigator.of(context).pop();
+              },
+              child: const Text('新增'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('取消'),
+            ),
+          ],
+        );
+      },
+    );
+    return eventTitle;
   }
 }
