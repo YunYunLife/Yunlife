@@ -26,6 +26,11 @@ def get_articles():
 def get_calendar():
     result = getCollection(collectionNames.calendar)
     return saveChinese(result)
+
+@app.route('/student_account', methods=['GET'])
+def get_student_account():
+    result = getCollection(collectionNames.student_account)
+    return saveChinese(result)
   
 @app.route('/user_calendar', methods=['GET'])
 def get_usercalendar():

@@ -1,109 +1,29 @@
-import 'package:flutter/material.dart';
-import 'package:yunLife/home.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
-class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
+Future<bool> verifyUserCredentials(String inputUsername, String inputPassword) async {
+  try {
+    final response = await http.get(Uri.parse('http://yunlifeserver.glitch.me/student_account'));
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text('Yunlife',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            )),
-      ),
-      body: login_body(context),
-    );
-  }
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> decoded = json.decode(response.body) as Map<String, dynamic>;
+      final List<dynamic> dataList = decoded['greetings'] as List<dynamic>;
 
-  Container login_body(BuildContext context) {
-    return Container(
-        child: SingleChildScrollView(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          SizedBox(
-            height: 400,
-            child: Image.asset('asst/images/home.gif'),
-          ),
-          _textbox('請輸入帳號'),
-          SizedBox(
-            height: 30,
-          ),
-          _textbox('請輸入密碼'),
-          SizedBox(
-            height: 30,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => HomePage()),
-                  );
-                },
-                child: _button('登入', true),
-              ),
-              SizedBox(
-                width: 60,
-              ),
-              GestureDetector(
-                onTap: () {},
-                child: _button('登出', false),
-              ),
-            ],
-          )
-        ],
-      ),
-    ));
-  }
+      for (var account in dataList) {
+        String username = account['帳號'];
+        String password = account['密碼'];
 
-  Container _button(String input, bool choose) {
-    Color buttoncolor = Colors.grey;
-    if (choose) {
-      buttoncolor = Colors.blue;
+        if (username == inputUsername && password == inputPassword) {
+          return true; 
+        }
+      }
+
+      return false; 
+    } else {
+      throw Exception('Failed to load student accounts');
     }
-    return Container(
-      height: 30,
-      width: 100,
-      decoration: BoxDecoration(
-        color: buttoncolor,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Center(
-        child: Text(
-          input,
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Container _textbox(String input) {
-    return Container(
-      margin: EdgeInsets.only(left: 20, right: 20),
-      child: TextField(
-        decoration: InputDecoration(
-          hintText: input,
-          hintStyle: TextStyle(
-            color: Colors.grey,
-          ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(5),
-            borderSide: BorderSide.none,
-          ),
-          filled: true,
-        ),
-      ),
-    );
+  } catch (e) {
+    print('Error: $e');
+    return false;
   }
 }

@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:table_calendar/table_calendar.dart';
 import 'package:yunLife/clendar/utils.dart';
+import 'package:yunLife/global.dart';
 import 'package:yunLife/setting.dart';
+import 'package:yunLife/login/loginPage.dart';
 
 class clendarPage extends StatefulWidget {
   @override
@@ -70,7 +72,7 @@ class clendarPageState extends State<clendarPage> {
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(<String, dynamic>{
-          '學號': 'B11023042', 
+          '學號': globalUsername,
           '日期': '${_selectedDay!.year}-${_selectedDay!.month}-${_selectedDay!.day}', 
           '事件': eventTitle,
         }),

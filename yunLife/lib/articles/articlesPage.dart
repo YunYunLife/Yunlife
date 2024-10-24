@@ -19,7 +19,7 @@ class _evaluatePageState extends State<evaluatePage> {
   }
 
   Future<void> fetchData() async {
-    final response = await http.get(Uri.parse('http://10.0.2.2:5000/articles'));
+    final response = await http.get(Uri.parse('http://yunlifeserver.glitch.me/articles'));
 
     final Map<String, dynamic> decoded =
         json.decode(response.body) as Map<String, dynamic>;
