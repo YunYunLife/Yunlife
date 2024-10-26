@@ -1,143 +1,128 @@
 import 'dart:async';
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart'; // 添加 Google Maps Flutter 包
-import 'package:location/location.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:location/location.dart';
 import 'package:yunLife/setting.dart';
 
 class mapPage extends StatefulWidget {
   const mapPage({super.key});
 
   @override
-  State<mapPage> createState() => _mapPageState();
+  State<mapPage> createState() => _MapPageState();
 }
 
-class _mapPageState extends State<mapPage> {
-  final locationController = Location();
-  
-  static const googlePlex = LatLng(23.693809679486208, 120.53182880511123);
-  static const goatlocation = LatLng(23.6947643780979, 120.5378082675644);
-  LatLng? currentPosition = null;
 
-  Map<PolylineId,Polyline> polylines = {};
+class _MapPageState extends State<mapPage> {
+  late GoogleMapController mapController;
+  final Location location = Location();
+  LatLng goatLocation = const LatLng(23.6947643780979, 120.5378082675644);
+  LatLng? currentLocation;
+  Map<MarkerId, Marker> markers = {};
+  Map<PolylineId, Polyline> polylines = {};
+  List<LatLng> polylineCoordinates = [];
+  PolylinePoints polylinePoints = PolylinePoints();
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance 
-        .addPostFrameCallback((_) async => await initializeMap());
+    _addMarker(goatLocation, "goatLocation", BitmapDescriptor.defaultMarker);
+    _initLocation();
   }
 
-  Future<void> initializeMap() async{
-    int i=1;
-    await fetchLocationUpdates(i);
-    final coordinates = await fetchPolylinePoints();
-    generatePolyLineFromPoints(coordinates);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: currentPosition == null
-          ? const Center(
-              child: Text("Loading..."),
-            )
-          : GoogleMap(
-              initialCameraPosition: CameraPosition(
-                target: googlePlex,
-                zoom: 16,
-              ),
-              markers: {
-                Marker(
-                    markerId: const MarkerId('currentLocation'),
-                    icon: BitmapDescriptor.defaultMarker,
-                    position: currentPosition!),
-                const Marker(
-                    markerId: MarkerId('sourceLocation'),
-                    icon: BitmapDescriptor.defaultMarker,
-                    position: googlePlex),
-                const Marker(
-                    markerId: MarkerId('goat'),
-                    icon: BitmapDescriptor.defaultMarker, 
-                    position: goatlocation)
-              },
-              polylines: Set<Polyline>.of(polylines.values),
-            ),
-    );
-  }
-
-  Future<void> fetchLocationUpdates(int i) async {
+  Future<void> _initLocation() async {
     bool serviceEnabled;
-    PermissionStatus permissionStatus;
+    PermissionStatus permissionGranted;
 
-    serviceEnabled = await locationController.serviceEnabled();
-    if (serviceEnabled) {
-      serviceEnabled = await locationController.requestService();
-    } else {
-      return;
-    }
-
-    permissionStatus = await locationController.hasPermission();
-    if (permissionStatus == PermissionStatus.denied) {
-      permissionStatus = await locationController.requestPermission();
-      if (permissionStatus != PermissionStatus.granted) {
+    // 检查定位服务是否启用
+    serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
         return;
       }
     }
-    locationController.onLocationChanged.listen((LocationData currentLocation) {
-      if (currentLocation.latitude != null &&
-          currentLocation.longitude != null) {
+
+    // 检查位置权限
+    permissionGranted = await location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
+        return;
+      }
+    }
+
+    // 获取当前位置并实时更新
+    location.onLocationChanged.listen((LocationData locationData) {
+      if (locationData.latitude != null && locationData.longitude != null) {
         setState(() {
-          currentPosition = LatLng(
-            currentLocation.latitude!,
-            currentLocation.longitude!,
-          );
-          print(currentPosition);
+          currentLocation = LatLng(locationData.latitude!, locationData.longitude!);
         });
+        _getPolyline();
       }
     });
   }
 
-  Future<List<LatLng>> fetchPolylinePoints() async {
-    final polylinePoints = PolylinePoints();
-    
-    if(currentPosition == null){
-      print("fuck\n");
-    }
-    print(currentPosition);
+  void _addMarker(LatLng position, String id, BitmapDescriptor descriptor) {
+    MarkerId markerId = MarkerId(id);
+    Marker marker = Marker(markerId: markerId, icon: descriptor, position: position);
+    markers[markerId] = marker;
+    setState(() {});
+  }
 
-    final result = await polylinePoints.getRouteBetweenCoordinates(
-      googleApiKey:GOOGLE_MAPS_API_KEY,
-      request: PolylineRequest( 
-        origin: PointLatLng(googlePlex.latitude, googlePlex.longitude),
-        destination: PointLatLng(goatlocation.latitude, goatlocation.longitude),
-        mode: TravelMode.walking, 
+  void _onMapCreated(GoogleMapController controller) {
+    mapController = controller;
+  }
+
+  void _addPolyline() {
+    PolylineId id = PolylineId("polyline");
+    Polyline polyline = Polyline(
+      polylineId: id,
+      color: Colors.red,
+      points: polylineCoordinates,
+      width: 5,
+    );
+    setState(() {
+      polylines[id] = polyline;
+    });
+  }
+
+  Future<void> _getPolyline() async {
+    if (currentLocation == null) return;
+
+    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+      googleApiKey: GOOGLE_MAPS_API_KEY,
+      request: PolylineRequest(
+        origin: PointLatLng(currentLocation!.latitude, currentLocation!.longitude),
+        destination: PointLatLng(goatLocation.latitude, goatLocation.longitude),
+        mode: TravelMode.walking,
       ),
     );
 
     if (result.points.isNotEmpty) {
-      return result.points
-          .map((point) => LatLng(point.latitude, point.longitude))
-          .toList();
-    } else {
-      debugPrint(result.errorMessage);
-      return [];
-    }  
+      polylineCoordinates.clear();
+      result.points.forEach((PointLatLng point) {
+        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+      });
+      _addPolyline();
+    }
   }
 
-  Future<void> generatePolyLineFromPoints(
-      List<LatLng> polylineCoordinates) async {
-    const id = PolylineId('polyline');
-
-    final polyline = Polyline(
-      polylineId: id,
-      color: Colors.blueAccent,
-      points: polylineCoordinates,
-      width: 5,
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Scaffold(
+        body: GoogleMap(
+          initialCameraPosition: CameraPosition(
+            target: currentLocation ?? LatLng(23.693297406133105, 120.53458268547402),
+            zoom: 15,
+          ),
+          myLocationEnabled: true,
+          onMapCreated: _onMapCreated,
+          markers: Set<Marker>.of(markers.values),
+          polylines: Set<Polyline>.of(polylines.values),
+        ),
+      ),
     );
-
-    setState(() => polylines[id] = polyline);
-}
+  }
 }

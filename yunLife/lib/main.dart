@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:yunLife/home.dart';
-//import 'package:yunLife/map/mapPage.dart';
+
+import 'package:yunLife/clendar/clendarPage.dart';
+import 'package:yunLife/login/loadPage.dart';
+import 'package:yunLife/login/loginPage.dart';
+import 'package:yunLife/map/mapPage.dart';
+
 
 void main() {
   runApp(const MyApp());

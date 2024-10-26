@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:yunLife/login/login.dart';
+import 'package:yunLife/login/loginPage.dart';
 
 class LoadPage extends StatefulWidget {
   const LoadPage({super.key});
@@ -19,7 +19,7 @@ class _LoadPageState extends State<LoadPage> {
 
     Future.delayed(const Duration(seconds: 2), () {
       Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const LoginPage()));
+          MaterialPageRoute(builder: (_) => LoginPage()));
     });
   }
 
