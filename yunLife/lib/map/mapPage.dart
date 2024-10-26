@@ -12,6 +12,7 @@ class mapPage extends StatefulWidget {
   State<mapPage> createState() => _MapPageState();
 }
 
+
 class _MapPageState extends State<mapPage> {
   late GoogleMapController mapController;
   final Location location = Location();
@@ -125,4 +126,3 @@ class _MapPageState extends State<mapPage> {
     );
   }
 }
-

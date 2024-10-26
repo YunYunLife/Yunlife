@@ -33,10 +33,12 @@ class clendarPageState extends State<clendarPage> {
     });
   }
 
+
   @override
   void dispose() {
     _selectedEvents.dispose();
     super.dispose();
+
   }
 
   List<Event> _getEventsForDay(DateTime day) {
