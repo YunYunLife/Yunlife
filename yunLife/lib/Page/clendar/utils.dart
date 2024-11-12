@@ -3,6 +3,8 @@ import 'package:http/http.dart' as http;
 import 'package:table_calendar/table_calendar.dart';
 import 'dart:collection';
 
+import 'package:yunLife/setting.dart';
+
 /// Example event class
 class Event {
   final String title;
@@ -27,8 +29,8 @@ int getHashCode(DateTime key) {
 /// Function to fetch events from multiple APIs and update the event map
 Future<void> fetchEventsFromMultipleApis() async {
   // Fetch data from both APIs
-  final userCalendarResponse = await http.get(Uri.parse('http://yunlifeserver.glitch.me/user_calendar'));
-  final calendarResponse = await http.get(Uri.parse('http://yunlifeserver.glitch.me/calendar'));
+  final userCalendarResponse = await http.get(Uri.parse('$SERVER_IP/user_calendar'));
+  final calendarResponse = await http.get(Uri.parse('$SERVER_IP/calendar'));
 
   kEvents.clear(); // Clear existing events
 

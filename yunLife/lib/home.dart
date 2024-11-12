@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:yunLife/articles/articlesPage.dart';
-import 'package:yunLife/clendar/clendarPage.dart';
-import 'package:yunLife/robot/homeRobotPage.dart';
-import 'package:yunLife/club/clubPage.dart';
-import 'package:yunLife/map/mapPage.dart';
+import 'package:yunLife/Page/articles/articlesPage.dart';
+import 'package:yunLife/Page/clendar/clendarPage.dart';
+import 'package:yunLife/Page/robot/homeRobotPage.dart';
+import 'package:yunLife/Page/club/clubPage.dart';
+import 'package:yunLife/Page/map/mapPage.dart';
+import 'package:yunLife/Page/set/setPage.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -91,22 +92,13 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       centerTitle: true,
-      leading: GestureDetector(
-        onTap: () {},
-        child: Container(
-          margin: EdgeInsets.all(10),
-          width: 37,
-          height: 37,
-          child: Icon(
-            Icons.arrow_back,
-            color: Colors.black,
-            size: 20,
-          ),
-        ),
-      ),
+      
       actions: [
         GestureDetector(
-          onTap: () {},
+          onTap: () { Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => setPage()),
+            );},
           child: Container(
             margin: EdgeInsets.all(10),
             width: 37,

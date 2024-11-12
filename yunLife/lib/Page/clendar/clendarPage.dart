@@ -2,10 +2,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:table_calendar/table_calendar.dart';
-import 'package:yunLife/clendar/utils.dart';
+import 'package:yunLife/Page/clendar/utils.dart';
 import 'package:yunLife/global.dart';
 import 'package:yunLife/setting.dart';
-import 'package:yunLife/login/loginPage.dart';
+import 'package:yunLife/Page/login/loginPage.dart';
 
 class clendarPage extends StatefulWidget {
   @override
@@ -69,7 +69,7 @@ class clendarPageState extends State<clendarPage> {
   Future<void> _addEvent(String eventTitle) async {
     if (_selectedDay != null) {
       final response = await http.post(
-        Uri.parse('http://yunlifeserver.glitch.me/userdata_upload'), 
+        Uri.parse('$SERVER_IP/userdata_upload'), 
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

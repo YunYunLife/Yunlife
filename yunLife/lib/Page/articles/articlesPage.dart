@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:yunLife/setting.dart';
 
 class evaluatePage extends StatefulWidget {
   const evaluatePage({super.key});
@@ -19,7 +20,7 @@ class _evaluatePageState extends State<evaluatePage> {
   }
 
   Future<void> fetchData() async {
-    final response = await http.get(Uri.parse('http://yunlifeserver.glitch.me/articles'));
+    final response = await http.get(Uri.parse('$SERVER_IP/articles'));
 
     final Map<String, dynamic> decoded =
         json.decode(response.body) as Map<String, dynamic>;

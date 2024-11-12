@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:yunLife/setting.dart';
 
 Future<bool> verifyUserCredentials(String inputUsername, String inputPassword) async {
   try {
-    final response = await http.get(Uri.parse('http://yunlifeserver.glitch.me/student_account'));
+    final response = await http.get(Uri.parse('$SERVER_IP/student_account'));
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> decoded = json.decode(response.body) as Map<String, dynamic>;

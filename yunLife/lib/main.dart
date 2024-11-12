@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
-import 'package:yunLife/clendar/clendarPage.dart';
-import 'package:yunLife/login/loadPage.dart';
-import 'package:yunLife/login/loginPage.dart';
-import 'package:yunLife/map/mapPage.dart';
+import 'package:yunLife/Page/clendar/clendarPage.dart';
+import 'package:yunLife/Page/club/clubPage.dart';
+import 'package:yunLife/Page/login/loadPage.dart';
+import 'package:yunLife/Page/login/loginPage.dart';
+import 'package:yunLife/Page/map/mapPage.dart';
+import 'package:yunLife/home.dart';
 
 
 void main() {
@@ -13,12 +15,11 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const LoginPage(),
+      home: const HomePage(),
     );
   }
 }
