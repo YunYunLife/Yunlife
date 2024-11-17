@@ -47,11 +47,6 @@ def userdata_upload():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-@app.route('/classrooms', methods=['GET'])
-def get_classrooms():
-    result = getCollection(collectionNames.classrooms)
-    return saveChinese(result)
-
 @app.route('/clubs', methods=['GET'])
 def get_clubs():
     result = getCollection(collectionNames.clubs)

@@ -41,7 +41,7 @@ def initialize_review_embeddings():
 
 def initialize_calendar_embeddings():
     # 從資料庫提取所有行事曆的內容
-    calendar_events = list(db.calendar.find({}, {'_id': 0, '活動': 1, '活動日期': 1, '超連結': 1}))
+    calendar_events = list(db.calendar.find({}, {'_id': 0, '活動': 1, '活動日期': 1}))
 
     # 將活動內容轉換為嵌入向量
     calendar_corpus = [event['活動'] for event in calendar_events]
@@ -50,12 +50,10 @@ def initialize_calendar_embeddings():
     return calendar_events, calendar_corpus, calendar_embeddings
 
 def initialize_classroom_embeddings():
-    classrooms = list(db.classrooms.find({}, {"id":0, "空間代號": 1, "空間名稱": 1}))
-    classroom_corpus = [f"{room['空間名稱']} {room['空間代號']}" for room in classrooms]
-
+    classrooms = list(db.classrooms.find({}, {'_id':0, '空間代號': 1, '空間名稱': 1, '教室位置':1, '樓層':1}))
+    classroom_corpus = [room['空間名稱'] for room in classrooms]
     classroom_embeddings = model.encode(classroom_corpus,convert_to_tensor=True)
     return classrooms, classroom_corpus, classroom_embeddings
-
 
 
 # 在初始化時調用這個函數
@@ -86,7 +84,7 @@ def get_calendar_by_similarity(user_input):
     cosine_scores = util.pytorch_cos_sim(query_embedding, calendar_embeddings)
     
     # 查找三個最相似的活動
-    top_results = torch.topk(cosine_scores, k=3)
+    top_results = torch.topk(cosine_scores, k=5)
 
     relevant_events = []
     threshold = 0.85  # 設定相似度閾值
@@ -98,7 +96,6 @@ def get_calendar_by_similarity(user_input):
             relevant_events.append({
                 "活動": event['活動'],
                 "活動日期": event['活動日期'],
-                "超連結": event.get('超連結', '無超連結'),
                 "相似度": score.item()
             })
 
@@ -120,8 +117,7 @@ def get_calendar_by_date(date_input, calendar_events):
         if event_date and event_date.date() == parsed_date.date():
             relevant_events.append({
                 "活動": event['活動'],
-                "活動日期": event['活動日期'],
-                "超連結": event.get('超連結', '無超連結')
+                "活動日期": event['活動日期']
             })
     
     if relevant_events:
@@ -146,7 +142,7 @@ def get_review_by_similarity(user_input):
     cosine_scores = util.pytorch_cos_sim(query_embedding, review_embeddings)
     
     # 選擇相似度最高的結果
-    top_results = torch.topk(cosine_scores, k=3)
+    top_results = torch.topk(cosine_scores, k=5)
     relevant_reviews = []
     
     # 設置相似度的閾值，過濾出與輸入文本相似度較高的評價
@@ -172,7 +168,7 @@ def get_clubs_by_similarity(user_input):
     query_embedding = model.encode(user_input, convert_to_tensor=True)
     cosine_scores = util.pytorch_cos_sim(query_embedding, club_embeddings)
 
-    top_results = torch.topk(cosine_scores, k=3)  # 查找三個最相似的結果
+    top_results = torch.topk(cosine_scores, k=5)  # 查找三個最相似的結果
     relevant_clubs = []
 
     threshold = 0.92  # 設定相似度閾值
@@ -190,27 +186,31 @@ def get_clubs_by_similarity(user_input):
 
     return generate_club_response(relevant_clubs) if relevant_clubs else "未找到相關社團資訊"
 
-def get_classroom_by_exact_keyword(keywords):
-    query = {
-        "$or":[
-            {"空間代號":{"$regex": f"{keywords}$", "$options": "i"}},
-            {"空間名稱":{"$regex": f".*", "$options":"i"}}
-        ]
-    }
-    result = db.classrooms.find_one(query, {"_id":0})
-    return result if result else None
+def get_classroom_by_exact_keyword(keywords, user_input):
+    query = {"$or": [
+        {"空間代號": {"$regex": "|".join(keywords), "$options": "i"}},
+        {"空間名稱": {"$regex": "|".join(keywords), "$options": "i"}}
+    ]}
+    classrooms = list(db.classrooms.find(query, {"_id": 0}))
+    return classrooms if classrooms else None
 
-def get_classroom_by_similarity(user_input, classrooms, classroo_corpus, classroom_embeddings):
+def get_classroom_by_similarity(user_input):
     query_embedding = model.encode(user_input, convert_to_tensor=True)
-    cosine_scores = util.pytorch_cos_sin(query_embedding, classroom_embeddings)
-    top_results = torch.topk(cosine_scores, k=3)
+    cosine_scores = util.pytorch_cos_sim(query_embedding, classroom_embeddings)
+    top_results = torch.topk(cosine_scores, k=5)
     relevent_classrooms = []
-    threshold = 0.85
-    for score, idx in zip(top_results.values.squeeze(), top_results.indices.squeeze()):
-        if score.items() >= threshold:
-            classroom = classrooms[idx.items()]
-            relevent_classrooms.append(classroom)
-    return relevent_classrooms        
+    threshold = 0.9
+    for score, idx in zip(top_results.values.squeeze(),top_results.indices.squeeze()):
+        if score.item() >= threshold:
+            classroom = classrooms[idx.item()]
+            relevent_classrooms.append({
+                "空間代號": classroom.get('空間代號', '未知'),
+                "空間名稱": classroom.get('空間名稱', '未知'),
+                "教室位置": classroom.get('教室位置', '未知'),
+                "樓層": classroom.get('樓層', '未知'),
+                "相似度": score.item()
+            })
+    return generate_classroom_response(relevent_classrooms) if relevent_classrooms else "未找到相關空間資訊"       
 
     
 def ask_gpt(prompt):
@@ -224,12 +224,14 @@ def ask_gpt(prompt):
 
 
     messages.append({"role": "user", "content": prompt})
+    print(f"Sending to chatgpt:{messages}")
 
     response = openai.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=messages,
         max_tokens=500
     )
+    print(f"ChatGPT response: {response}")
     return response.choices[0].message.content.strip()
 
 def update_memory(user_input, bot_response):
@@ -284,6 +286,15 @@ def get_calendar_by_keywords(keywords):
     events = list(db.calendar.find(query, {"_id": 0}))
     return events if events else "未在行事曆中找到資訊"
 
+def get_classroom_by_keywords(keywords):
+    query = {
+        "$or": [
+            {"空間代號": {"$regex": "|".join(keywords), "$options": "i"}},  # 模糊匹配空間代號
+            {"空間名稱": {"$regex": "|".join(keywords), "$options": "i"}}   # 模糊匹配空間名稱
+        ]
+    }
+    classrooms = list(db.classrooms.find(query, {"_id":0}))
+    return classrooms if classrooms else []
 
 def generate_review_response(reviews, user_input):
     """用 GPT 來重新表述並過濾評價結果。"""
@@ -315,20 +326,19 @@ def generate_club_response(clubs, user_input):
 def generate_calendar_response(events, user_input):
     """生成自然語言的行事曆活動回應。"""
     events_text = "\n".join([
-        f"活動名稱：{event['活動']}，日期：{event.get('活動日期', '未知')}，超連結：{event.get('超連結', '未知')}" 
+        f"活動名稱：{event['活動']}，日期：{event.get('活動日期', '未知')}" 
         for event in events if isinstance(event, dict)
     ])
     
-    prompt = f"使用者詢問的內容：{user_input}\n\n以下是一些行事曆活動：\n{events_text}\n請以雲林科技大學校園助理的身分，回答使用者詢問的內容。"
+    prompt = f"使用者詢問的內容：{user_input}\n\n以下是一些行事曆上的活動：\n{events_text}\n請以雲林科技大學校園助理的身分，回答使用者詢問的內容。"
     # 確保 prompt 是字符串格式
     return ask_gpt(prompt)
 
-def generate_classroom_response(result, user_input):
-    classroom_info = (
-        f"空間代號:{result['空間代號']}，空間名稱:{result['空間名稱']}，"
-        f"教室位置:{result['教室位置']}，樓層:{result['樓層']}"
-    )
-
+def generate_classroom_response(classrooms, user_input):
+    classroom_info = "\n".join([
+        f"空間代號：{classroom['空間代號']}，空間名稱：{classroom['空間名稱']}，教室位置：{classroom.get('教室位置', '未知')}，樓層：{classroom.get('樓層', '未知')}"
+        for classroom in classrooms if isinstance(classroom, dict)
+    ])
     prompt = f"使用者詢問的內容：{user_input}\n\n以下是教室資訊：\n{classroom_info}\n請以雲林科技大學校園助理的身分，回答使用者詢問的內容。"
     return ask_gpt(prompt)
 
@@ -373,17 +383,20 @@ def process_user_input(user_input):
             exact_matches = get_calendars_by_exact_keyword(keywords, user_input)
             if exact_matches:
                 return exact_matches
-        
+            return get_calendar_by_similarity(user_input)
         # 如果沒有精確匹配，進行相似度查找
         relevant_events = get_calendar_by_similarity(user_input, calendar_corpus, calendar_embeddings)
         return generate_calendar_response(relevant_events) if relevant_events else "未找到相關的行事曆活動。"
-    elif "位置" in user_input or "教室位置" in user_input or "在哪裡" in user_input:
+    # 查询教室信息
+    if "教室" in user_input or "位置" in user_input or "在哪裡" in user_input:
         for keyword in keywords:
             exact_matches = get_classroom_by_exact_keyword(keywords, user_input)
             if exact_matches:
                 return exact_matches
-        relevant_classrooms = get+get_classroom_by_similarity(user_input, classroom_corpus, classroom_embeddings)
-        return generate_classroom_response(relevant_classrooms)
+            return get_classroom_by_similarity(user_input)
+        
+        relevant_classrooms = get_classroom_by_similarity(user_input, classroom_corpus, classroom_embeddings)
+        return generate_classroom_response(relevant_classrooms) if relevant_classrooms else "未找到相關的教室資訊。"
     else:
         return ask_gpt(user_input)
 
