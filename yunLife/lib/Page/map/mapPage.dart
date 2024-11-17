@@ -16,111 +16,109 @@ class mapPage extends StatefulWidget {
 class _MapPageState extends State<mapPage> {
   final myGoat = TextEditingController();
 
-  String goat(String goat) {
+  String goat() {
     String text = myGoat.text;
     if (text.length < 3) {
       return "學校沒有這教室";
-    } else if (goat == "build") {
-      return text.substring(0, 2);
-    } else if (goat == "floor")
-      return text.substring(2,3);
-    else
-      return "學校沒有這教室";
+    } else  {
+      return text.substring(0, 2)+" "+text.substring(2, 3)+" 樓地圖";
+    } 
+
   }
 
-  // late GoogleMapController mapController;
-  // final Location location = Location();
-  // LatLng goatLocation = const LatLng(23.6947643780979, 120.5378082675644);
-  // LatLng? currentLocation;
-  // Map<MarkerId, Marker> markers = {};
-  // Map<PolylineId, Polyline> polylines = {};
-  // List<LatLng> polylineCoordinates = [];
-  // PolylinePoints polylinePoints = PolylinePoints();
+  late GoogleMapController mapController;
+  final Location location = Location();
+  LatLng goatLocation = const LatLng(23.6947643780979, 120.5378082675644);
+  LatLng? currentLocation;
+  Map<MarkerId, Marker> markers = {};
+  Map<PolylineId, Polyline> polylines = {};
+  List<LatLng> polylineCoordinates = [];
+  PolylinePoints polylinePoints = PolylinePoints();
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _addMarker(goatLocation, "goatLocation", BitmapDescriptor.defaultMarker);
-  //   _initLocation();
-  // }
+  @override
+  void initState() {
+    super.initState();
+    _addMarker(goatLocation, "goatLocation", BitmapDescriptor.defaultMarker);
+    _initLocation();
+  }
 
-  // Future<void> _initLocation() async {
-  //   bool serviceEnabled;
-  //   PermissionStatus permissionGranted;
+  Future<void> _initLocation() async {
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
 
-  //   // 检查定位服务是否启用
-  //   serviceEnabled = await location.serviceEnabled();
-  //   if (!serviceEnabled) {
-  //     serviceEnabled = await location.requestService();
-  //     if (!serviceEnabled) {
-  //       return;
-  //     }
-  //   }
+    // 检查定位服务是否启用
+    serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
+        return;
+      }
+    }
 
-  //   // 检查位置权限
-  //   permissionGranted = await location.hasPermission();
-  //   if (permissionGranted == PermissionStatus.denied) {
-  //     permissionGranted = await location.requestPermission();
-  //     if (permissionGranted != PermissionStatus.granted) {
-  //       return;
-  //     }
-  //   }
+    // 检查位置权限
+    permissionGranted = await location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
+        return;
+      }
+    }
 
-  //   // 获取当前位置并实时更新
-  //   location.onLocationChanged.listen((LocationData locationData) {
-  //     if (locationData.latitude != null && locationData.longitude != null) {
-  //       setState(() {
-  //         currentLocation = LatLng(locationData.latitude!, locationData.longitude!);
-  //       });
-  //       _getPolyline();
-  //     }
-  //   });
-  // }
+    // 获取当前位置并实时更新
+    location.onLocationChanged.listen((LocationData locationData) {
+      if (locationData.latitude != null && locationData.longitude != null) {
+        setState(() {
+          currentLocation = LatLng(locationData.latitude!, locationData.longitude!);
+        });
+        _getPolyline();
+      }
+    });
+  }
 
-  // void _addMarker(LatLng position, String id, BitmapDescriptor descriptor) {
-  //   MarkerId markerId = MarkerId(id);
-  //   Marker marker = Marker(markerId: markerId, icon: descriptor, position: position);
-  //   markers[markerId] = marker;
-  //   setState(() {});
-  // }
+  void _addMarker(LatLng position, String id, BitmapDescriptor descriptor) {
+    MarkerId markerId = MarkerId(id);
+    Marker marker = Marker(markerId: markerId, icon: descriptor, position: position);
+    markers[markerId] = marker;
+    setState(() {});
+  }
 
-  // void _onMapCreated(GoogleMapController controller) {
-  //   mapController = controller;
-  // }
+  void _onMapCreated(GoogleMapController controller) {
+    mapController = controller;
+  }
 
-  // void _addPolyline() {
-  //   PolylineId id = PolylineId("polyline");
-  //   Polyline polyline = Polyline(
-  //     polylineId: id,
-  //     color: Colors.red,
-  //     points: polylineCoordinates,
-  //     width: 5,
-  //   );
-  //   setState(() {
-  //     polylines[id] = polyline;
-  //   });
-  // }
+  void _addPolyline() {
+    PolylineId id = PolylineId("polyline");
+    Polyline polyline = Polyline(
+      polylineId: id,
+      color: Colors.red,
+      points: polylineCoordinates,
+      width: 5,
+    );
+    setState(() {
+      polylines[id] = polyline;
+    });
+  }
 
-  // Future<void> _getPolyline() async {
-  //   if (currentLocation == null) return;
+  Future<void> _getPolyline() async {
+    if (currentLocation == null) return;
 
-  //   PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
-  //     googleApiKey: GOOGLE_MAPS_API_KEY,
-  //     request: PolylineRequest(
-  //       origin: PointLatLng(currentLocation!.latitude, currentLocation!.longitude),
-  //       destination: PointLatLng(goatLocation.latitude, goatLocation.longitude),
-  //       mode: TravelMode.walking,
-  //     ),
-  //   );
+    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+      googleApiKey: GOOGLE_MAPS_API_KEY,
+      request: PolylineRequest(
+        origin: PointLatLng(currentLocation!.latitude, currentLocation!.longitude),
+        destination: PointLatLng(goatLocation.latitude, goatLocation.longitude),
+        mode: TravelMode.walking,
+      ),
+    );
 
-  //   if (result.points.isNotEmpty) {
-  //     polylineCoordinates.clear();
-  //     result.points.forEach((PointLatLng point) {
-  //       polylineCoordinates.add(LatLng(point.latitude, point.longitude));
-  //     });
-  //     _addPolyline();
-  //   }
-  // }
+    if (result.points.isNotEmpty) {
+      polylineCoordinates.clear();
+      result.points.forEach((PointLatLng point) {
+        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+      });
+      _addPolyline();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -167,7 +165,7 @@ class _MapPageState extends State<mapPage> {
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: Text(goat("build") +" "+ goat("floor")+"樓地圖"),
+                    title: Text(goat()),
                     content: Text('this is picture'),
                   );
                 },

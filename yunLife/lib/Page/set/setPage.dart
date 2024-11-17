@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:yunLife/Page/login/loginPage.dart';
@@ -15,46 +16,56 @@ class _setPageState extends State<setPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          "意見回饋",
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
+        appBar: AppBar(
+          title: Text(
+            "意見回饋",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          leading: GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: Container(
+              margin: EdgeInsets.all(10),
+              width: 37,
+              height: 37,
+              child: Icon(
+                Icons.arrow_back,
+                color: Colors.black,
+                size: 20,
+              ),
+            ),
           ),
         ),
-        centerTitle: true,
-        leading: GestureDetector(
-        onTap: () {Navigator.pop(context);},
-        child: Container(
-          margin: EdgeInsets.all(10),
-          width: 37,
-          height: 37,
-          child: Icon(
-            Icons.arrow_back,
-            color: Colors.black,
-            size: 20,
+        body: Column(children: [
+          Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+            ElevatedButton(
+                onPressed: () {
+                  _showInputDialog(context);
+                },
+                child: Text("意見回饋")),
+          ]),
+          Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+            ElevatedButton(
+                onPressed: () {
+                  _showHowToUse(context);
+                },
+                child: Text("使用說明")),
+          ]),
+          SizedBox(
+            height: 100,
           ),
-        ),
-      ),
-      ),
-      body: Column(
-        children: [
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
               Navigator.pop(context);
             },
             child: Text('登出'),
-          ),
-          ElevatedButton(
-              onPressed: () {
-                _showInputDialog(context);
-              },
-              child: Text("意見回饋"))
-        ],
-      ),
-    );
+          )
+        ]));
   }
 
   void _showInputDialog(BuildContext context) {
@@ -85,6 +96,18 @@ class _setPageState extends State<setPage> {
               child: Text('送出'),
             ),
           ],
+        );
+      },
+    );
+  }
+
+  void _showHowToUse(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("使用說明"),
+          content: Text("這是使用說明"),
         );
       },
     );
