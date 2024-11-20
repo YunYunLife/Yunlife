@@ -207,7 +207,22 @@ class _homeRobotPageState extends State<homeRobotPage> {
                     ),
                     const SizedBox(height: 2),
                     // Show chat interface if _isChatVisible is true
-                    if (_isChatVisible)
+                    if (!_isChatVisible)
+                      Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "點選助理以喚醒",
+                                style: TextStyle(
+                                    fontSize: 24, color: Colors.grey[400]),
+                              ),
+                            ],
+                          ),
+                        ],
+                      )
+                    else
                       Column(
                         children: [
                           Container(
