@@ -30,7 +30,6 @@ class _MapPageState extends State<mapPage> {
         goatLocation = location;
       });
 
-      // 更新地图标记和视角
       _updateMapView(location);
 
       message = text.substring(0, 2) + " " + text.substring(2, 3) + " 樓地圖";
@@ -50,7 +49,7 @@ class _MapPageState extends State<mapPage> {
 
   late GoogleMapController mapController;
   final Location location = Location();
-  LatLng? currentLocation;
+  LatLng? currentLocation =LatLng(23.693297406133105, 120.53458268547402);
   Map<MarkerId, Marker> markers = {};
   Map<PolylineId, Polyline> polylines = {};
   List<LatLng> polylineCoordinates = [];
@@ -59,7 +58,6 @@ class _MapPageState extends State<mapPage> {
   @override
   void initState() {
     super.initState();
-
     _initLocation();
   }
 
@@ -178,8 +176,7 @@ class _MapPageState extends State<mapPage> {
           Expanded(
             child: GoogleMap(
               initialCameraPosition: CameraPosition(
-                target: currentLocation ??
-                    LatLng(23.693297406133105, 120.53458268547402),
+                target: currentLocation!,
                 zoom: 16,
               ),
               myLocationEnabled: true,
