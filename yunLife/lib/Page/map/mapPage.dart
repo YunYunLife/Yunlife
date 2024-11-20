@@ -17,21 +17,31 @@ class mapPage extends StatefulWidget {
 class _MapPageState extends State<mapPage> {
   LatLng? goatLocation;
   String message = "未輸入資料";
+  final myGoat = TextEditingController();
 
-  Future<void> goat(text) async {
-    if (!(text.length < 3)) {
+  Future<void> goat() async {
+    String text = myGoat.text;
+    LatLng? location = await getPointFromServer(text.substring(0, 2));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("連線中，請稍後...")),
+      );
+    if (location != null) {
+      setState(() {
+        goatLocation = location;
+      });
+
+      // 更新地图标记和视角
+      _updateMapView(location);
+
       message = text.substring(0, 2) + " " + text.substring(2, 3) + " 樓地圖";
-      LatLng? location = await getPointFromServer(text.substring(0, 2));
-
-      if (location != null) {
-        setState(() {
-          goatLocation = location;
-        });
-        // 更新地图标记和视角
-        _updateMapView(location);
-      }
+    } else {
+      message = "學校沒有這教室";
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
     }
-       message =  "學校沒有這教室";
+    ;
   }
 
   void _updateMapView(LatLng location) {
@@ -81,18 +91,14 @@ class _MapPageState extends State<mapPage> {
         setState(() {
           currentLocation =
               LatLng(locationData.latitude!, locationData.longitude!);
+          if (goatLocation != null) {
+            _getPolyline();
+            _addMarker(
+                goatLocation!, "goatLocation", BitmapDescriptor.defaultMarker);
+          }
         });
-        if (goatLocation != null) {
-          _getPolyline();
-        }
       }
     });
-  }
-
-  void setGoatPoint() {
-    if (goatLocation != null) {
-      _addMarker(goatLocation!, "goatLocation", BitmapDescriptor.defaultMarker);
-    }
   }
 
   void _addMarker(LatLng position, String id, BitmapDescriptor descriptor) {
@@ -151,29 +157,30 @@ class _MapPageState extends State<mapPage> {
     return Scaffold(
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              onChanged: (text){goat(text);},
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: Colors.grey[200],
-                prefixIcon: Icon(Icons.search),
-                labelText: "請輸入教室代號",
-                hintText: "範例：MA214",
-                hintStyle: TextStyle(color: Colors.grey[700]),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: TextField(
+                    controller: myGoat,
+                    onEditingComplete: () => goat(),
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.grey[200],
+                      prefixIcon: Icon(Icons.search),
+                      labelText: "請輸入教室代號",
+                      hintText: "範例：MA214",
+                      hintStyle: TextStyle(color: Colors.grey[700]),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ),
           Expanded(
             child: GoogleMap(
               initialCameraPosition: CameraPosition(
                 target: currentLocation ??
                     LatLng(23.693297406133105, 120.53458268547402),
-                zoom: 15,
+                zoom: 16,
               ),
               myLocationEnabled: true,
               onMapCreated: _onMapCreated,

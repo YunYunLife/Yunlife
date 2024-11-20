@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:yunLife/Page/articles/dashline.dart';
 import 'package:yunLife/setting.dart';
 
 class evaluatePage extends StatefulWidget {
@@ -42,7 +43,7 @@ class _evaluatePageState extends State<evaluatePage> {
             SizedBox(
               height: 20,
             ),
-            _clubBox(title, date, content, tags)
+            _clubBox(title, date, content, tags, context)
           ],
         );
       }).toList();
@@ -52,6 +53,7 @@ class _evaluatePageState extends State<evaluatePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xffeeeeee),
       body: Center(
           child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -61,66 +63,80 @@ class _evaluatePageState extends State<evaluatePage> {
   }
 }
 
-Container _clubBox(
-    String title, String date, String content, List<String> tags) {
+Container _clubBox(String mass, String date, String content, List<String> tags,
+    BuildContext context) {
+  List<String> title = mass.split(' ');
+  String semester = (title[0].substring(3, 4) == '1') ? '第一學期' : '第二學期';
+  String teacher = title[2];
+  String classNamech = title[3];
+  String? classNameen = title.length > 4 ? title.sublist(4).join(' ') : null;
+
   return Container(
     decoration: BoxDecoration(
-      color: Colors.brown[300],
-      borderRadius: BorderRadius.all(Radius.circular(20)),
+      color: Colors.white,
     ),
-    width: 300,
+    width: MediaQuery.of(context).size.width * 1,
     constraints: BoxConstraints(
-      minHeight: 180,
+      minHeight: 180.0,
       maxHeight: double.infinity,
     ),
     child: Padding(
-      padding: EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '課堂名稱：$title',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.brown[800],
-              fontSize: 20,
-            ),
-          ),
-          // SizedBox(height: 8),
-          Text(
-            '日期：$date',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.brown[800],
-              fontSize: 20,
-            ),
-          ),
-          // SizedBox(height: 8),
-          Text(
-            '評論：$content',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.brown[800],
-              fontSize: 20,
-            ),
-          ),
-          // SizedBox(height: 8),
-          Wrap(
-            spacing: 8.0, // 间距
-            children: tags.map((tag) {
-              return Chip(
-                label: Text(
-                  tag,
+        padding: EdgeInsets.only(left: 25, right: 25, top: 15, bottom: 15),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  classNamech,
                   style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.brown[900],
-                      fontSize: 15),
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                    fontSize: 24,
+                  ),
                 ),
-              );
-            }).toList(),
-          ),
-        ],
-      ),
-    ),
+                Icon(Icons.more_horiz)
+              ],
+            ),
+            if (classNameen != null)
+              Text(
+                classNameen,
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 22,
+                    color: Color(0xFF9B979C)),
+              ),
+            Text(
+              teacher + " " + semester,
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  color: Color(0xFF737373)),
+            ),
+            Text(
+              date + ' 評論',
+              style: TextStyle(fontSize: 18, color: Color(0xFF9b979c)),
+            ),
+            SizedBox(
+              height: 2,
+            ),
+            DashedLine(),
+            Text(content),
+            Wrap(
+              spacing: 10.0, // 间距
+              children: tags.map((tag) {
+                return Chip(
+                  side: BorderSide.none,
+                  backgroundColor: Color(0xFFFFDE59),
+                  label: Text(
+                    tag,
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
+        )),
   );
 }
