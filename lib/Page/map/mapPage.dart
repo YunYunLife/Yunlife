@@ -18,21 +18,22 @@ class _MapPageState extends State<mapPage> {
   LatLng? goatLocation;
   String message = "未輸入資料";
   final myGoat = TextEditingController();
+  bool havePic = false;
 
   Future<void> goat() async {
+    havePic = false;
     String text = myGoat.text;
     LatLng? location = await getPointFromServer(text.substring(0, 2));
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("連線中，請稍後...")),
-      );
-    if (location != null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("連線中，請稍後...")),
+    );
+    if (location != null && text.length>4) {
       setState(() {
         goatLocation = location;
       });
-
       _updateMapView(location);
-
       message = text.substring(0, 2) + " " + text.substring(2, 3) + " 樓地圖";
+      havePic = true;
     } else {
       message = "學校沒有這教室";
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -47,9 +48,52 @@ class _MapPageState extends State<mapPage> {
     mapController.animateCamera(CameraUpdate.newLatLng(location));
   }
 
+ getpic() {
+  String text = myGoat.text.substring(0, 3);
+  if (havePic) {
+    double _scale = 1.0; 
+    double _maxScale = 5.0; 
+
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            InteractiveViewer(
+              maxScale: _maxScale,
+              child: Image.network(
+                '$SERVER_IP/image_by_name/$text',
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) {
+                    return child; // 图片加载完成显示
+                  }
+                  return const Center(
+                    child: CircularProgressIndicator(), // 显示加载指示器
+                  );
+                },
+                errorBuilder: (context, error, stackTrace) {
+                  return const Text(
+                    "圖片加載失敗",
+                    style: TextStyle(fontSize: 16, color: Colors.red),
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  } else {
+    return const Text(
+      "沒有圖片",
+      style: TextStyle(fontSize: 16, color: Colors.red),
+    );
+  }
+}
+
   late GoogleMapController mapController;
   final Location location = Location();
-  LatLng? currentLocation =LatLng(23.693297406133105, 120.53458268547402);
+  LatLng? currentLocation = LatLng(23.693297406133105, 120.53458268547402);
   Map<MarkerId, Marker> markers = {};
   Map<PolylineId, Polyline> polylines = {};
   List<LatLng> polylineCoordinates = [];
@@ -155,24 +199,24 @@ class _MapPageState extends State<mapPage> {
     return Scaffold(
       body: Column(
         children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: TextField(
-                    controller: myGoat,
-                    onEditingComplete: () => goat(),
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.grey[200],
-                      prefixIcon: Icon(Icons.search),
-                      labelText: "請輸入教室代號",
-                      hintText: "範例：MA214",
-                      hintStyle: TextStyle(color: Colors.grey[700]),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                    ),
-                  ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: TextField(
+              controller: myGoat,
+              onEditingComplete: () => goat(),
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.grey[200],
+                prefixIcon: Icon(Icons.search),
+                labelText: "請輸入教室代號",
+                hintText: "範例：MA214",
+                hintStyle: TextStyle(color: Colors.grey[700]),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
                 ),
+              ),
+            ),
+          ),
           Expanded(
             child: GoogleMap(
               initialCameraPosition: CameraPosition(
@@ -194,7 +238,7 @@ class _MapPageState extends State<mapPage> {
             builder: (BuildContext context) {
               return AlertDialog(
                 title: Text(message),
-                content: Text('this is picture'),
+                content: getpic(),
               );
             },
           );

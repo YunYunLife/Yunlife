@@ -84,7 +84,7 @@ class _LoginPageState extends State<LoginPage> {
       BuildContext context, String inputUsername, String inputPassword) async {
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('登入中！請稍後...')),
+      SnackBar(content: Text('登入中！請耐心等候...')),
     );
 
     // 调用验证函数
