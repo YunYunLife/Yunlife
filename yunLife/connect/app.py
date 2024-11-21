@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, make_response
 import json
-from yunLife.lib.mongoConnect import getCollection, collectionNames
+from mongoConnect import getCollection, collectionNames
 
 app = Flask(__name__)
 
