@@ -1,4 +1,3 @@
-'''''
 import openai
 import spacy
 import dateparser
@@ -425,7 +424,7 @@ def process_user_input(user_input, username = None):
         return generate_classroom_response(relevant_classrooms) if relevant_classrooms else "未找到相關的教室資訊。"
     else:
         return ask_gpt(user_input)
-    
+    '''''
     elif "新增事件" in user_input:
         try:
             parsed_date = parse_event_date(user_input)
@@ -443,6 +442,4 @@ def process_user_input(user_input, username = None):
         except Exception as e:
             return f"新增事件時發生錯誤:{(e)}"    ,
     
-    
-'''''
-
+    '''''

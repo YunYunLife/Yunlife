@@ -52,36 +52,6 @@ def get_clubs():
     result = getCollection(collectionNames.clubs)
     return saveChinese(result)
 
-@app.route('/elearing', methods=['GET'])
-def get_elearing_articles():  
-    result = getCollection(collectionNames.elearing)
-    return saveChinese(result)
-
-@app.route('/business_reality', methods=['GET'])
-def get_business_reality_articles():  
-    result = getCollection(collectionNames.business_reality)
-    return saveChinese(result)
-
-@app.route('/business_online', methods=['GET'])
-def get_business_online_articles(): 
-    result = getCollection(collectionNames.business_online)
-    return saveChinese(result)
-
-@app.route('/siliconvalley', methods=['GET'])
-def get_siliconvalley_articles():  
-    result = getCollection(collectionNames.siliconvalley)
-    return saveChinese(result)
-
-@app.route('/university_course', methods=['GET'])
-def get_university_course_articles(): 
-    result = getCollection(collectionNames.university_course)
-    return saveChinese(result)
-
-@app.route('/university_course_list', methods=['GET'])
-def get_university_course_list_articles():  
-    result = getCollection(collectionNames.university_course_list)
-    return saveChinese(result)
-
 def saveChinese(data):
     response = make_response(json.dumps({'greetings': data}, ensure_ascii=False))
     response.headers['Content-Type'] = 'application/json; charset=utf-8'
