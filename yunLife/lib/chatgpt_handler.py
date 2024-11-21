@@ -1,3 +1,4 @@
+'''''
 import openai
 import spacy
 import dateparser
@@ -148,7 +149,7 @@ def get_review_by_similarity(user_input):
     # 設置相似度的閾值，過濾出與輸入文本相似度較高的評價
     for score, idx in zip(top_results[0], top_results[1].squeeze()):
         review_idx = idx.item()
-    if score.item() >= 0.85:  # 相似度閾值  
+    if score.item() >= 0.9:  # 相似度閾值  
          review = reviews[review_idx]
          relevant_reviews.append(f"課程名稱：{review['title']}，日期：{review['date']}，內容：{review['content']} (相似度: {score.item():.4f})")
     
@@ -171,7 +172,7 @@ def get_clubs_by_similarity(user_input):
     top_results = torch.topk(cosine_scores, k=5)  # 查找三個最相似的結果
     relevant_clubs = []
 
-    threshold = 0.92  # 設定相似度閾值
+    threshold = 0.9  # 設定相似度閾值
     for score, idx in zip(top_results[0], top_results[1].squeeze()):
         club_idx = idx.items()
         if score.item() >= threshold:
@@ -187,17 +188,13 @@ def get_clubs_by_similarity(user_input):
     return generate_club_response(relevant_clubs) if relevant_clubs else "未找到相關社團資訊"
 
 def get_classroom_by_exact_keyword(keywords, user_input):
-    query = {"$or": [
-        {"空間代號": {"$regex": "|".join(keywords), "$options": "i"}},
-        {"空間名稱": {"$regex": "|".join(keywords), "$options": "i"}}
-    ]}
-    classrooms = list(db.classrooms.find(query, {"_id": 0}))
-    return classrooms if classrooms else None
+    classrooms = get_classroom_by_keywords(keywords)
+    return generate_classroom_response(classrooms, user_input) if classrooms else None
 
 def get_classroom_by_similarity(user_input):
     query_embedding = model.encode(user_input, convert_to_tensor=True)
     cosine_scores = util.pytorch_cos_sim(query_embedding, classroom_embeddings)
-    top_results = torch.topk(cosine_scores, k=5)
+    top_results = torch.topk(cosine_scores, k=3)
     relevent_classrooms = []
     threshold = 0.9
     for score, idx in zip(top_results.values.squeeze(),top_results.indices.squeeze()):
@@ -307,8 +304,8 @@ def generate_review_response(reviews, user_input):
         for review in reviews
     ])
 
-    prompt = f"使用者詢問的內容：{user_input}\n\n以下是一些課程的評價資訊：\n{reviews_text}\n請以雲林科技大學校園助理的身分，根據使用者的問題用口語化的語氣回答問題。"
-    
+    prompt = f"以下是雲林科技大學的各課堂評價資訊：\n{reviews_text}\n使用者詢問的問題：{user_input}\n\n請以雲林科技大學校園助理的身分，根據以上雲林科技大學各課堂評價資訊回答使用者詢問的問題。"
+    print(prompt)
     # 使用 GPT 生成過濾後的自然語言結果
     return ask_gpt(prompt)
 
@@ -318,7 +315,8 @@ def generate_club_response(clubs, user_input):
         f"社團名稱：{club['name']}，社長：{club.get('president', '未知')}，集社時間：{club.get('meeting_time', '未知')}，集社地點：{club.get('meeting_place', '未知')}"
         for club in clubs
     ])
-    prompt = f"使用者詢問的內容：{user_input}\n\n以下是一些社團資訊{clubs_text}\n請以雲林科技大學校園助理的身分，請幫我用口語化的語氣回答使用者詢問內容。"
+    prompt = f"以下是雲林科技大學的各社團資訊：\n{clubs_text}\n使用者詢問的問題：{user_input}\n\n請以雲林科技大學校園助理的身分，根據以上雲林科技大學社團資訊回答使用者詢問的問題。"
+    print(prompt)
 
     return ask_gpt(prompt)
 
@@ -329,8 +327,7 @@ def generate_calendar_response(events, user_input):
         f"活動名稱：{event['活動']}，日期：{event.get('活動日期', '未知')}" 
         for event in events if isinstance(event, dict)
     ])
-    
-    prompt = f"使用者詢問的內容：{user_input}\n\n以下是一些行事曆上的活動：\n{events_text}\n請以雲林科技大學校園助理的身分，回答使用者詢問的內容。"
+    prompt = f"以下是雲林科技大學的行事曆資訊：\n{events_text}\n使用者詢問的問題：{user_input}\n\n請以雲林科技大學校園助理的身分，根據以上雲林科技大學行事曆資訊回答使用者詢問的問題。"
     # 確保 prompt 是字符串格式
     return ask_gpt(prompt)
 
@@ -339,13 +336,44 @@ def generate_classroom_response(classrooms, user_input):
         f"空間代號：{classroom['空間代號']}，空間名稱：{classroom['空間名稱']}，教室位置：{classroom.get('教室位置', '未知')}，樓層：{classroom.get('樓層', '未知')}"
         for classroom in classrooms if isinstance(classroom, dict)
     ])
-    prompt = f"使用者詢問的內容：{user_input}\n\n以下是教室資訊：\n{classroom_info}\n請以雲林科技大學校園助理的身分，回答使用者詢問的內容。"
+    prompt = f"以下是雲林科技大學各教室的資訊：\n{classroom_info}\n使用者詢問的問題：{user_input}\n\n請以雲林科技大學校園助理的身分，根據以上教室資訊回答使用者詢問的問題。"
+    print(prompt)
     return ask_gpt(prompt)
 
 
-def process_user_input(user_input):
+
+
+def get_personal_calendar(username):
+    events = list(db.user_calendar.find({"學號":username}, {"_id":0}))
+    if not events:
+         return "您的行事曆是空的。"
+
+    response_text = "您的行事曆如下：\n" + "\n".join(
+        [f"日期：{event['日期']}，事件：{event['事件']}" for event in events]
+    )
+    return response_text
+
+def add_event_to_calendar(username, date, event):
+    """
+    新增用戶行事曆事件。
+    """
+    if not date or not event:
+        return "新增事件失敗，請提供日期和事件內容。"
+
+    try:
+        db.user_calendar.insert_one({
+            "學號": username,
+            "日期": date,
+            "事件": event,
+        })
+        return "事件新增成功！"
+    except Exception as e:
+        return f"新增事件時發生錯誤：{str(e)}"
+
+def process_user_input(user_input, username = None):
     """根據使用者輸入選擇查詢或新增行事曆。"""
     keywords = extract_keywords(user_input)
+    print(f"Keywords extracted: {keywords}")  # 顯示提取的關鍵字
 
     possible_date = dateparser.parse(user_input)
     
@@ -353,7 +381,7 @@ def process_user_input(user_input):
         # 如果檢測到日期，根據日期查詢
         return get_calendar_by_date(user_input, calendar_events)
 
-    if "社團" in user_input or "社" in user_input:
+    elif "社團" in user_input or "社" in user_input:
         # 先進行精確匹配查詢
         for keyword in keywords:
             exact_matches = get_clubs_by_exact_keyword(keyword, user_input)
@@ -374,8 +402,6 @@ def process_user_input(user_input):
             return exact_matches
         
         return get_review_by_similarity(user_input)
-
-
     # 查詢行事曆或活動，先做精確查找，無結果時進行相似度查找
     elif "行事曆" in user_input or "活動" in user_input or "日期" in user_input or "時間" in user_input:
         # 首先進行精確匹配查找
@@ -388,7 +414,7 @@ def process_user_input(user_input):
         relevant_events = get_calendar_by_similarity(user_input, calendar_corpus, calendar_embeddings)
         return generate_calendar_response(relevant_events) if relevant_events else "未找到相關的行事曆活動。"
     # 查询教室信息
-    if "教室" in user_input or "位置" in user_input or "在哪裡" in user_input:
+    elif "教室" in user_input or "位置" in user_input or "在哪裡" in user_input:
         for keyword in keywords:
             exact_matches = get_classroom_by_exact_keyword(keywords, user_input)
             if exact_matches:
@@ -399,5 +425,24 @@ def process_user_input(user_input):
         return generate_classroom_response(relevant_classrooms) if relevant_classrooms else "未找到相關的教室資訊。"
     else:
         return ask_gpt(user_input)
-
+    
+    elif "新增事件" in user_input:
+        try:
+            parsed_date = parse_event_date(user_input)
+            if not parsed_date:
+                return "無法解析日期，請確認輸入格式，例如：'新增事件 2024-11-20 開會'"
+            split_input = user_input.split(maxsplit=2)
+            if len(split_input) < 3:
+                return "新增行事曆失敗，請提供完整的日期和事件內容。"
+            date = parsed_date.strftime("%Y-%m-%d")
+            event = split_input[2]
+            if username:
+                return add_event_to_calendar(username, date, event)
+            else:
+                return "未登入，無法輸入行事曆事件。"
+        except Exception as e:
+            return f"新增事件時發生錯誤:{(e)}"    ,
+    
+    
+'''''
 

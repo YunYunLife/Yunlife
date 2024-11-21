@@ -1,9 +1,9 @@
-from flask import Flask, jsonify, request, make_response,Response
+from flask import Flask, jsonify, request, make_response, Response
 from flask_cors import CORS
 import json
 from pymongo import MongoClient
 from mongoConnect import getCollection, collectionNames
-from chatgpt_handler import process_user_input, update_memory
+from chatgpt_handler import process_user_input
 from settings import MONGO_URI,DATABASE_NAME
 
 
@@ -90,13 +90,11 @@ def saveChinese(data):
 @app.route('/ask', methods=['POST'])
 def ask():
     data = request.json
-    user_input = data.get('prompt', '').lower()
-    
-    response = process_user_input(user_input)
-    
-    update_memory(user_input, response)
-    
-    return jsonify({'response': response})
+    user_input = data.get('prompt', '').strip().lower()
+    # 普通的 ChatGPT 問答處理
+    response = process_user_input(user_input,)
+    return jsonify({'response': response}), 200
+
 
 if __name__ == "__main__":
     app.run(debug=True)
