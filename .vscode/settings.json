@@ -1,3 +1,10 @@
 {
-    "cmake.ignoreCMakeListsMissing": true
+    "cmake.configureOnOpen": false,
+    "screencastMode.fontSize": 24,
+    "python.analysis.extraPaths": [
+        "./lib/robot",
+        "./lib"
+    ],
+    "java.compile.nullAnalysis.mode": "automatic",
+    "java.configuration.updateBuildConfiguration": "interactive"
 }
