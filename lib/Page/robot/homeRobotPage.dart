@@ -29,6 +29,7 @@ class _HomeRobotPageState extends State<homeRobotPage> {
   bool _isListening = false; // To track mic status
   String _speechText = ''; // Stores the recognized speech
   final String _currentLocaleId = 'en_US'; // Default to English
+  String time = DateFormat('HH:mm').format(DateTime.now());
 
   @override
   void initState() {
@@ -36,6 +37,15 @@ class _HomeRobotPageState extends State<homeRobotPage> {
     _speech = stt.SpeechToText(); // Initialize speech-to-text
     _checkPermissions(); // Check for microphone permissions
     _getAvailableLocales(); // Check available languages
+    _botHelloWorld();
+  }
+
+  void _botHelloWorld() {
+    _messages.add({
+      'text':
+          'Robot: 哈囉！我是yunyun，是你的校園助理，\n你可以問我有關社團、行事曆、課堂評價和教室位置的資訊，\n有任何問題都可以問我喔！',
+      'time': time
+    });
   }
 
   // Check microphone permission
@@ -102,7 +112,6 @@ class _HomeRobotPageState extends State<homeRobotPage> {
             _textController.text = _speechText; // Update the input field
           }),
           localeId: _currentLocaleId,
-          partialResults: true,
         );
       } else {
         setState(() {
@@ -147,7 +156,6 @@ class _HomeRobotPageState extends State<homeRobotPage> {
     FocusScope.of(context).unfocus();
 
     String userInput = _textController.text;
-    String time = DateFormat('HH:mm').format(DateTime.now()); // Format time
 
     setState(() {
       _messages.add({'text': 'You: $userInput', 'time': time});

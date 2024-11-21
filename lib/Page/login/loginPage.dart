@@ -25,7 +25,7 @@ class _LoginPageState extends State<LoginPage> {
       appBar: AppBar(
         centerTitle: true,
         title: const Text(
-          'Yunlife',
+          'YunLife',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,

@@ -13,6 +13,8 @@ class evaluatePage extends StatefulWidget {
 
 class _evaluatePageState extends State<evaluatePage> {
   List<Widget> clubData = [];
+  List<dynamic> dataList = [];
+  var myGoat = TextEditingController();
 
   @override
   void initState() {
@@ -22,12 +24,33 @@ class _evaluatePageState extends State<evaluatePage> {
 
   Future<void> fetchData() async {
     final response = await http.get(Uri.parse('$SERVER_IP/articles'));
-
     final Map<String, dynamic> decoded =
         json.decode(response.body) as Map<String, dynamic>;
-    final List<dynamic> dataList = decoded['greetings'] as List<dynamic>;
+    dataList = decoded['greetings'] as List<dynamic>;
 
     getData(dataList);
+  }
+
+  void findDataByKeyword() {
+    if (myGoat.text == "") {
+      getData(dataList);
+    } else {
+      final List<dynamic> goatdata = [];
+      for (var item in dataList) {
+        final title = item['title'] as String;
+        final parts = title.split(" ");
+
+        if (parts[3] == myGoat.text) {
+          goatdata.add(item);
+        }
+      }
+      if (goatdata.toString() == '[]') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('查無此課堂！請確認輸入內容是否正確及完整')),
+        );
+      }
+      getData(goatdata);
+    }
   }
 
   void getData(List<dynamic> dataList) {
@@ -57,7 +80,27 @@ class _evaluatePageState extends State<evaluatePage> {
       body: Center(
           child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [Expanded(child: ListView(children: clubData))],
+        children: [
+          Padding(
+            padding: EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
+            child: TextField(
+              controller: myGoat,
+              onEditingComplete: () => findDataByKeyword(),
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.grey[200],
+                prefixIcon: Icon(Icons.search),
+                labelText: "請輸入課堂名稱",
+                hintText: "範例：網頁設計",
+                hintStyle: TextStyle(color: Colors.grey[700]),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+              ),
+            ),
+          ),
+          Expanded(child: ListView(children: clubData))
+        ],
       )),
     );
   }
@@ -104,7 +147,7 @@ Container _clubBox(String mass, String date, String content, List<String> tags,
                 classNameen,
                 style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 22,
+                    fontSize: 18,
                     color: Color(0xFF9B979C)),
               ),
             Text(

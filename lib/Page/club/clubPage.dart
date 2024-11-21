@@ -13,6 +13,8 @@ class clubPage extends StatefulWidget {
 
 class _clubPageState extends State<clubPage> {
   List<Widget> clubData = [];
+  final myGoat = TextEditingController();
+  List<dynamic> dataList = [];
 
   @override
   void initState() {
@@ -25,16 +27,37 @@ class _clubPageState extends State<clubPage> {
 
     final Map<String, dynamic> decoded =
         json.decode(response.body) as Map<String, dynamic>;
-    final List<dynamic> dataList = decoded['greetings'] as List<dynamic>;
+    dataList = decoded['greetings'] as List<dynamic>;
 
     getData(dataList);
+  }
+
+  void findDataByKeyword() {
+    if (myGoat.text == "") {
+      getData(dataList);
+    } else {
+      final List<dynamic> goatdata = [];
+      for (var item in dataList) {
+        final title = item['name'] as String;
+
+        if (title == myGoat.text) {
+          goatdata.add(item);
+        }
+      }
+      if (goatdata.toString() == '[]') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('查無此社團！請確認輸入內容是否正確及完整')),
+        );
+      }
+      getData(goatdata);
+    }
   }
 
   void getData(List<dynamic> dataList) {
     return setState(() {
       clubData = dataList.map((item) {
         final name = item['name'];
-        final president = item['president'];
+        // final president = item['president'];
         final office = item['office'];
         final meetingTime = item['meeting_time'];
         final meetingPlace = item['meeting_place'] ?? "";
@@ -65,14 +88,32 @@ class _clubPageState extends State<clubPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Center(
+      body: Column(children: [
+        Padding(
+          padding: EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
+          child: TextField(
+            controller: myGoat,
+            onEditingComplete: () => findDataByKeyword(),
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: Colors.grey[200],
+              prefixIcon: Icon(Icons.search),
+              labelText: "請輸入社團名稱",
+              hintText: "範例：攝影社",
+              hintStyle: TextStyle(color: Colors.grey[700]),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+            ),
+          ),
+        ),
+        Expanded(
           child: ListView(
             shrinkWrap: true,
             children: clubData,
           ),
         ),
-      ),
+      ]),
     );
   }
 }

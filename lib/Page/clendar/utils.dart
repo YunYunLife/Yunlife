@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:table_calendar/table_calendar.dart';
+import 'package:yunLife/global.dart';
 import 'dart:collection';
 
 import 'package:yunLife/setting.dart';
@@ -38,7 +39,7 @@ Future<void> fetchEventsFromMultipleApis() async {
   if (userCalendarResponse.statusCode == 200) {
     final userData = jsonDecode(userCalendarResponse.body);
     for (var event in userData['greetings']) {
-      if (event['學號'] == "B11023042") {
+      if (event['學號'] == globalUsername) {
         DateTime eventDate = DateTime.parse(event['日期']);
         if (kEvents[eventDate] == null) {
           kEvents[eventDate] = [];
