@@ -62,7 +62,7 @@ def ask():
     data = request.json
     user_input = data.get('prompt', '').strip().lower()
     # 普通的 ChatGPT 問答處理
-    response = process_user_input(user_input,)
+    response = process_user_input(user_input)
     return jsonify({'response': response}), 200
 
 
