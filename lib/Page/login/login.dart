@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:yunLife/setting.dart';
+import 'package:yunlife/setting.dart';
 
 Future<bool> verifyUserCredentials(String inputUsername, String inputPassword) async {
   try {

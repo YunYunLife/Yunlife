@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:yunLife/setting.dart';
+import 'package:yunlife/setting.dart';
 
 class clubPage extends StatefulWidget {
   const clubPage({super.key});

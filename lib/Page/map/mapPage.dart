@@ -4,8 +4,8 @@ import 'package:flutter/widgets.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:location/location.dart';
-import 'package:yunLife/Page/map/getGoat.dart';
-import 'package:yunLife/setting.dart';
+import 'package:yunlife/Page/map/getGoat.dart';
+import 'package:yunlife/setting.dart';
 
 class mapPage extends StatefulWidget {
   const mapPage({super.key});

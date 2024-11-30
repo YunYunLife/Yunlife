@@ -5,8 +5,8 @@ import 'package:speech_to_text/speech_to_text.dart'
     as stt; // Import speech-to-text package
 import 'package:permission_handler/permission_handler.dart'; // Import permission handler for microphone permissions
 import 'package:intl/intl.dart'; // Import for time formatting
-import 'package:yunLife/global.dart';
-import 'package:yunLife/setting.dart'; // Import settings for the API key and server URL
+import 'package:yunlife/global.dart';
+import 'package:yunlife/setting.dart'; // Import settings for the API key and server URL
 import 'package:url_launcher/url_launcher.dart'; // Import for launching URLs
 
 // Define the different states for the robot's image

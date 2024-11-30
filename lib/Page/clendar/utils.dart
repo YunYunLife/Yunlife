@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:table_calendar/table_calendar.dart';
-import 'package:yunLife/global.dart';
+import 'package:yunlife/global.dart';
 import 'dart:collection';
 
-import 'package:yunLife/setting.dart';
+import 'package:yunlife/setting.dart';
 
 /// Example event class
 class Event {

@@ -1,5 +1,5 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:yunLife/setting.dart';
+import 'package:yunlife/setting.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 

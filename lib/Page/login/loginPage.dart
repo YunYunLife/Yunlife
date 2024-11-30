@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:yunLife/home.dart';
-import 'package:yunLife/Page/login/login.dart';
-import 'package:yunLife/global.dart';
+import 'package:yunlife/home.dart';
+import 'package:yunlife/Page/login/login.dart';
+import 'package:yunlife/global.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -25,7 +25,7 @@ class _LoginPageState extends State<LoginPage> {
       appBar: AppBar(
         centerTitle: true,
         title: const Text(
-          'YunLife',
+          'yunlife',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,

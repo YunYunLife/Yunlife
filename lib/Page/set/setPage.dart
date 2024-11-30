@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:yunLife/Page/login/loginPage.dart';
-import 'package:yunLife/setting.dart';
+import 'package:yunlife/Page/login/loginPage.dart';
+import 'package:yunlife/setting.dart';
 
 class setPage extends StatefulWidget {
   const setPage({super.key});

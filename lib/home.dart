@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:yunLife/Page/articles/articlesPage.dart';
-import 'package:yunLife/Page/clendar/clendarPage.dart';
-import 'package:yunLife/Page/robot/homeRobotPage.dart';
-import 'package:yunLife/Page/club/clubPage.dart';
-import 'package:yunLife/Page/map/mapPage.dart';
-import 'package:yunLife/Page/set/setPage.dart';
+import 'package:yunlife/Page/articles/articlesPage.dart';
+import 'package:yunlife/Page/clendar/clendarPage.dart';
+import 'package:yunlife/Page/robot/homeRobotPage.dart';
+import 'package:yunlife/Page/club/clubPage.dart';
+import 'package:yunlife/Page/map/mapPage.dart';
+import 'package:yunlife/Page/set/setPage.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

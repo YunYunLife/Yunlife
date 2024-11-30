@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:yunLife/Page/login/loginPage.dart';
+import 'package:yunlife/Page/login/loginPage.dart';
 
 class LoadPage extends StatefulWidget {
   const LoadPage({super.key});

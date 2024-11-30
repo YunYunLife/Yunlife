@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:yunLife/Page/articles/dashline.dart';
-import 'package:yunLife/setting.dart';
+import 'package:yunlife/Page/articles/dashline.dart';
+import 'package:yunlife/setting.dart';
 
 class evaluatePage extends StatefulWidget {
   const evaluatePage({super.key});
