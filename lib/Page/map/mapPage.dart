@@ -62,7 +62,7 @@ class _MapPageState extends State<mapPage> {
             InteractiveViewer(
               maxScale: _maxScale,
               child: Image.network(
-                '$SERVER_IP/image_by_name/$text',
+                'http://yunlifeserver.glitch.me/image_by_name/$text',
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) {
                     return child; // 图片加载完成显示

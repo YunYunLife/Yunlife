@@ -92,13 +92,15 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       centerTitle: true,
-      
+      leading: GestureDetector(),
       actions: [
         GestureDetector(
-          onTap: () { Navigator.push(
+          onTap: () {
+            Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => setPage()),
-            );},
+            );
+          },
           child: Container(
             margin: EdgeInsets.all(10),
             width: 37,

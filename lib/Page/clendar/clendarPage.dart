@@ -164,16 +164,17 @@ class clendarPageState extends State<clendarPage> {
           ),
           actions: <Widget>[
             TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('取消'),
+            ),
+            TextButton(
               onPressed: () {
                 eventTitle = titleController.text;
                 Navigator.of(context).pop();
               },
               child: const Text('新增'),
             ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('取消'),
-            ),
+            
           ],
         );
       },

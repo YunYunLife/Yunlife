@@ -1,7 +1,7 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:yunlife/setting.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:yunlife/setting.dart';
 
 
 Future<LatLng?> getPointFromServer(String listname) async {
@@ -15,31 +15,27 @@ Future<LatLng?> getPointFromServer(String listname) async {
       final List<dynamic> dataList = decoded['greetings'];
 
       // 查找匹配的 listname 项目
-      final Map<String, dynamic>? matchedItem = dataList
+      final Map<String, dynamic> matchedItem = dataList
           .cast<Map<String, dynamic>>()
           .firstWhere((item) => item['filename'] == listname, orElse: () => <String, dynamic>{});
 
-      if (matchedItem != null) {
-        // 提取 point 字段
-        final point = matchedItem['point'] as String?;
-        if (point != null) {
-          // 分割字符串并解析为 LatLng
-          final coordinates = point.split(',');
-          if (coordinates.length == 2) {
-            double lat = double.parse(coordinates[0].trim());
-            double lng = double.parse(coordinates[1].trim());
-            result = LatLng(lat, lng);
-            print("Found point value: $result");
-          } else {
-            print("Invalid point format.");
-          }
+      // 提取 point 字段
+      final point = matchedItem['point'] as String?;
+      if (point != null) {
+        // 分割字符串并解析为 LatLng
+        final coordinates = point.split(',');
+        if (coordinates.length == 2) {
+          double lat = double.parse(coordinates[0].trim());
+          double lng = double.parse(coordinates[1].trim());
+          result = LatLng(lat, lng);
+          print("Found point value: $result");
         } else {
-          print("Point field is null.");
+          print("Invalid point format.");
         }
       } else {
-        print("No matching listname found.");
+        print("Point field is null.");
       }
-    } else {
+        } else {
       print("Failed to fetch data. Status code: ${response.statusCode}");
     }
   } catch (e) {

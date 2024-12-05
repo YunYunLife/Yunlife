@@ -264,7 +264,7 @@ class _HomeRobotPageState extends State<homeRobotPage> {
                       Column(
                         children: [
                           Container(
-                            height: 265,
+                            height: MediaQuery.of(context).size.height * 0.35,
                             decoration: BoxDecoration(
                               border: Border.all(color: Colors.brown),
                               borderRadius: BorderRadius.circular(8.0),
